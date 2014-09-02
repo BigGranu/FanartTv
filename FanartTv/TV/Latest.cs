@@ -22,7 +22,10 @@ namespace FanartTv.TV
     /// </summary>
     public Latest()
     {
-      List = Info(API.Key);
+        if (String.IsNullOrEmpty(API.cKey))
+            List = Info(API.Key);
+        else
+            List = Info(API.Key, API.cKey);
     }
 
     /// <summary>
@@ -35,9 +38,19 @@ namespace FanartTv.TV
     }
 
     /// <summary>
+    /// Get images for Latest Shows
+    /// </summary>
+    /// <param name="apiKey">Users api_key</param>
+    /// <param name="clientKey">Users client_key</param>
+    public Latest(string apiKey, string clientKey)
+    {
+        List = Info(apiKey, clientKey);
+    }
+
+    /// <summary>
     /// API Result
     /// </summary>
-    /// <param name="apiKey">Your Fanart.Tv API key</param>
+    /// <param name="apiKey">Users api_key</param>
     /// <returns>List of images for Latest Shows</returns>
     private static List<TvLatest> Info(string apiKey)
     {
@@ -57,6 +70,32 @@ namespace FanartTv.TV
       {
         return new List<TvLatest>();
       }
+    }
+
+    /// <summary>
+    /// API Result
+    /// </summary>
+    /// <param name="apiKey">Users api_key</param>
+    /// <param name="clientKey">Users client_key</param>
+    /// <returns>List of images for Latest Shows</returns>
+    private static List<TvLatest> Info(string apiKey, string clientKey)
+    {
+        try
+        {
+            List<TvLatest> tmp;
+
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(Helper.Json.GetJson(API.Server + "tv/latest" + "?api_key=" + apiKey + "&client_key=" + clientKey))))
+            {
+                var settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
+                var serializer = new DataContractJsonSerializer(typeof(List<TvLatest>), settings);
+                tmp = (List<TvLatest>)serializer.ReadObject(ms);
+            }
+            return tmp ?? new List<TvLatest>();
+        }
+        catch (Exception)
+        {
+            return new List<TvLatest>();
+        }
     }
   }
 }

@@ -22,7 +22,10 @@ namespace FanartTv.Music
     /// </summary>
     public Latest()
     {
-      List = Info(API.Key);
+        if (String.IsNullOrEmpty(API.cKey))
+            List = Info(API.Key);
+        else
+            List = Info(API.Key, API.cKey);
     }
 
     /// <summary>
@@ -32,6 +35,16 @@ namespace FanartTv.Music
     public Latest(string apiKey)
     {
       List = Info(apiKey);
+    }
+
+    /// <summary>
+    /// Get Images for Latest Artists
+    /// </summary>
+    /// <param name="apiKey">Users api_key</param>
+    /// <param name="clientKey">Users client_key</param>
+    public Latest(string apiKey, string clientKey)
+    {
+        List = Info(apiKey, clientKey);
     }
 
     /// <summary>
@@ -57,6 +70,31 @@ namespace FanartTv.Music
       {
         return new List<LatestArtistData>();
       }
+    }
+
+    /// <summary>
+    /// API Result
+    /// </summary>
+    /// <param name="apiKey">Users api_key</param>
+    /// <returns>List of Images for Latest Artists</returns>
+    private static List<LatestArtistData> Info(string apiKey, string clientKey)
+    {
+        try
+        {
+            List<LatestArtistData> tmp;
+
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(Helper.Json.GetJson(API.Server + "music/latest" + "?api_key=" + apiKey + "&client_key=" + clientKey))))
+            {
+                var settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
+                var serializer = new DataContractJsonSerializer(typeof(List<LatestArtistData>), settings);
+                tmp = (List<LatestArtistData>)serializer.ReadObject(ms);
+            }
+            return tmp ?? new List<LatestArtistData>();
+        }
+        catch (Exception)
+        {
+            return new List<LatestArtistData>();
+        }
     }
   }
 }

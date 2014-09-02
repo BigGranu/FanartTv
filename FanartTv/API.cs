@@ -6,6 +6,11 @@
     /// The current API key
     /// </summary>
     public static string Key = "91b020d36e832bf14efc3a33c165994e";
+    
+    /// <summary>
+    /// The current client_API key
+    /// </summary>
+    public static string cKey = "";
 
     /// <summary>
     /// The current Server
